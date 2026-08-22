@@ -2,6 +2,7 @@ package org.example;
 import java.util.List;
 import java.util.Scanner;
 import java.util.LinkedList; //libreria de las listas enlazadas
+
 public class Main {
     static Scanner leer = new Scanner(System.in);
     static List<Factura> listaFactura = new LinkedList<Factura>();
@@ -25,13 +26,13 @@ public class Main {
         System.out.println("2. Eliminar factura");
         System.out.println("3. Ver facturas");
         System.out.println("4. Salir");
-        option=leer.nextInt();
+        option=leerEntero();
         return option;
     }
     public static void crearFactura() {
         leer.nextLine();
         System.out.print("Ingrese documento del cliente: ");
-        Long idCliente = leer.nextLong();
+        Long idCliente = leerLong();
         leer.nextLine();
         Factura factura = new Factura(idCliente);
         int continuar;
@@ -40,18 +41,18 @@ public class Main {
             System.out.print("Ingrese producto: ");
             String producto = leer.nextLine();
             System.out.print("Ingrese cantidad: ");
-            Double cantidad = leer.nextDouble();
+            Double cantidad = leerDouble();
             System.out.print("Ingrese precio unitario: ");
-            Double precioUnit = leer.nextDouble();
+            Double precioUnit = leerDouble();
             factura.agregarProducto(producto, cantidad, precioUnit);
             leer.nextLine();
-            System.out.println("¿Desea agregar otro producto? ");
+            System.out.println("¿Desea agregar otro producto?");
             System.out.println("1. si");
             System.out.println("2. no");
-            continuar = leer.nextInt();
+            continuar = leerEntero();
             leer.nextLine();
             switch (continuar){
-                case 1-> System.out.println("ok continuar");
+                case 1 -> System.out.println("ok continuar");
                 case 2 -> booleanContinua = false;
                 default -> System.out.println("Opción no válida.");
             }
@@ -61,7 +62,7 @@ public class Main {
     }
     public static void eliminarFactura(){
         System.out.print("Ingrese el ID de la factura a eliminar: ");
-        Long id = leer.nextLong();
+        Long id = leerLong();
         leer.nextLine();
         boolean eliminada = listaFactura.removeIf(factura -> factura.getId().equals(id));
         if (eliminada) {
@@ -78,11 +79,11 @@ public class Main {
         System.out.println("1. Por ID de factura");
         System.out.println("2. Por ID de cliente");
         System.out.print("Seleccione una opción: ");
-        option3 = leer.nextInt();
+        option3 = leerEntero();
         switch (option3) {
             case 1 -> {
                 System.out.print("Ingrese ID de la factura: ");
-                Long idFactura = leer.nextLong();
+                Long idFactura = leerLong();
                 for (int i = 0; i < listaFactura.size(); i++) {
                     if (listaFactura.get(i).getId().equals(idFactura)) {
                         posicion = i;
@@ -92,7 +93,7 @@ public class Main {
             }
             case 2 -> {
                 System.out.print("Ingrese ID del cliente: ");
-                Long idCliente = leer.nextLong();
+                Long idCliente = leerLong();
                 for (int i = 0; i < listaFactura.size(); i++) {
                     if (listaFactura.get(i).getIdCliente().equals(idCliente)) {
                         posicion = i;
@@ -105,13 +106,10 @@ public class Main {
                 return;
             }
         }
-        // Si no encontró ninguna factura
         if (posicion == -1) {
             System.out.println("No se encontró ninguna factura.");
             return;
         }
-        // para esto es la posicion para avanzar en cada una y poder ver la siguiente o la anterior
-        //utilizamos booleaan mostar para mostarlo solo cuando cambie de posicion o si no despues de elegir cada opcion se mostraria
         boolean mostrar = true;
         while (true) {
             if (mostrar) {
@@ -122,7 +120,7 @@ public class Main {
             System.out.println("2. Ver siguiente");
             System.out.println("3. Volver");
             System.out.print("Seleccione una opción: ");
-            option4 = leer.nextInt();
+            option4 = leerEntero();
             switch (option4) {
                 case 1 -> {
                     if (posicion > 0) {
@@ -146,5 +144,26 @@ public class Main {
                 default -> System.out.println("Opción no válida.");
             }
         }
+    }
+    public static int leerEntero() {
+        while (!leer.hasNextInt()) {
+            System.out.println("Error: debe ingresar un número entero.");
+            leer.next();
+        }
+        return leer.nextInt();
+    }
+    public static Long leerLong() {
+        while (!leer.hasNextLong()) {
+            System.out.println("Error: debe ingresar un número.");
+            leer.next();
+        }
+        return leer.nextLong();
+    }
+    public static Double leerDouble() {
+        while (!leer.hasNextDouble()) {
+            System.out.println("Error: debe ingresar un número.");
+            leer.next();
+        }
+        return leer.nextDouble();
     }
 }
