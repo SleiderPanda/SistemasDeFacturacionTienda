@@ -35,9 +35,11 @@ public class Main {
         String producto = leer.nextLine();
         System.out.print("Ingrese cantidad: ");
         Double cantidad = leer.nextDouble();
+        System.out.println("Ingrese documento del cliente");
+        Long idCliente = leer.nextLong();
         System.out.print("Ingrese precio: ");
         Double precio = leer.nextDouble();
-        listaFactura.add(new Factura(producto, cantidad, precio));
+        listaFactura.add(new Factura(producto,idCliente, cantidad, precio));
         System.out.println("Factura creada correctamente.");
     }
     public static void eliminarFactura(){
@@ -52,49 +54,75 @@ public class Main {
         }
     }
     public static void verFacturas() {
-        Long option3;
+        int option3;
         int option4;
-                System.out.println("Ingrese id que desea ver");
-                option3 = leer.nextLong();
-                int posicion = -1;
-                // usamos este en vez del for factura factura: lista factura porque es importante la posicion para poder devolvernos y adelantar
+        int posicion = -1;
+        System.out.println("======== COMO DESEA BUSCAR LA FACTURA ========");
+        System.out.println("1. Por ID de factura");
+        System.out.println("2. Por ID de cliente");
+        System.out.print("Seleccione una opción: ");
+        option3 = leer.nextInt();
+        switch (option3) {
+            case 1 -> {
+                System.out.print("Ingrese ID de la factura: ");
+                Long idFactura = leer.nextLong();
                 for (int i = 0; i < listaFactura.size(); i++) {
-                    if (listaFactura.get(i).getId().equals(option3)) {
+                    if (listaFactura.get(i).getId().equals(idFactura)) {
                         posicion = i;
                         break;
                     }
                 }
-                if (posicion == -1) {
-                    System.out.println("No se encontró una factura con ese ID.");
-                    return;
-                }
-                // bucle para decir siguiente y atras hasta que ya no queramos
-                while (true) {
-                    listaFactura.get(posicion).mostrarFactura();
-                    System.out.println("1. Ver anterior");
-                    System.out.println("2. Ver siguiente");
-                    System.out.println("3. Volver");
-                    option4 = leer.nextInt();
-                    switch (option4) {
-                        case 1 -> {
-                            if (posicion > 0) {
-                                posicion--;
-                            } else {
-                                System.out.println("Ya está en la primera factura.");
-                            }
-                        }
-                        case 2 -> {
-                            if (posicion < listaFactura.size() - 1) {
-                                posicion++;
-                            } else {
-                                System.out.println("Ya está en la última factura.");
-                            }
-                        }
-                        case 3 -> {
-                            return;
-                        }
-                        default -> System.out.println("Opción no válida.");
+            }
+            case 2 -> {
+                System.out.print("Ingrese ID del cliente: ");
+                Long idCliente = leer.nextLong();
+                for (int i = 0; i < listaFactura.size(); i++) {
+                    if (listaFactura.get(i).getIdCliente().equals(idCliente)) {
+                        posicion = i;
+                        break;
                     }
                 }
             }
+            default -> {
+                System.out.println("Opción no válida.");
+                return;
+            }
         }
+        // Si no encontró ninguna factura
+        if (posicion == -1) {
+            System.out.println("No se encontró ninguna factura.");
+            return;
+        }
+        // para esto es la posicion para avanzar en cada una y poder ver la siguiente o la anterio
+        while (true) {
+
+            listaFactura.get(posicion).mostrarFactura();
+
+            System.out.println("1. Ver anterior");
+            System.out.println("2. Ver siguiente");
+            System.out.println("3. Volver");
+            System.out.print("Seleccione una opción: ");
+            option4 = leer.nextInt();
+            switch (option4) {
+                case 1 -> {
+                    if (posicion > 0) {
+                        posicion--;
+                    } else {
+                        System.out.println("Ya está en la primera factura.");
+                    }
+                }
+                case 2 -> {
+                    if (posicion < listaFactura.size() - 1) {
+                        posicion++;
+                    } else {
+                        System.out.println("Ya está en la última factura.");
+                    }
+                }
+                case 3 -> {
+                    return;
+                }
+                default -> System.out.println("Opción no válida.");
+            }
+        }
+    }
+}

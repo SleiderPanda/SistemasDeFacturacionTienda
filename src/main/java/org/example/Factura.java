@@ -9,14 +9,16 @@ public class Factura {
     //parametros a usar
     private static Long contador = 0L; //contador para que la id se haga de forma auto
     private Long id;
+    private Long idCliente;
     private String producto;
     private Double cantidad;
     private Double precio;
     private LocalDateTime fechaDecompra;
 
 
-    public Factura(String producto, Double cantidad, Double precio) { //se ponen solo los datos que necesitamos recibir porque id es con contador y fecha es con la del pc por ende no hay que poner ninguna de las 2
+    public Factura(String producto, Long idCliente, Double cantidad, Double precio) { //se ponen solo los datos que necesitamos recibir porque id es con contador y fecha es con la del pc por ende no hay que poner ninguna de las 2
         this.id = ++contador; // id con el contador el cual se pone auto
+        this.idCliente = idCliente;
         this.producto = producto;
         this.cantidad = cantidad;
         this.precio = precio;
