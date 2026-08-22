@@ -1,8 +1,7 @@
 package org.example;
 import java.util.List;
 import java.util.Scanner;
-import java.util.LinkedList; //libreria de las listas enlazadas dobles
-import java.time.LocalDateTime; //libreria para la fecha y horax
+import java.util.LinkedList; //libreria de las listas enlazadas
 public class Main {
     static Scanner leer = new Scanner(System.in);
     static List<Factura> listaFactura = new LinkedList<Factura>();
@@ -29,17 +28,35 @@ public class Main {
         option=leer.nextInt();
         return option;
     }
-    public static void crearFactura(){
-        leer.nextLine();// limpia el buffer es decir que antes habia un leer next int y puede generar que no nos deje poner mas valorees
-        System.out.print("Ingrese producto: ");
-        String producto = leer.nextLine();
-        System.out.print("Ingrese cantidad: ");
-        Double cantidad = leer.nextDouble();
-        System.out.println("Ingrese documento del cliente");
+    public static void crearFactura() {
+        leer.nextLine();
+        System.out.print("Ingrese documento del cliente: ");
         Long idCliente = leer.nextLong();
-        System.out.print("Ingrese precio: ");
-        Double precio = leer.nextDouble();
-        listaFactura.add(new Factura(producto,idCliente, cantidad, precio));
+        leer.nextLine();
+        Factura factura = new Factura(idCliente);
+        int continuar;
+        boolean booleanContinua = true;
+        do {
+            System.out.print("Ingrese producto: ");
+            String producto = leer.nextLine();
+            System.out.print("Ingrese cantidad: ");
+            Double cantidad = leer.nextDouble();
+            System.out.print("Ingrese precio unitario: ");
+            Double precioUnit = leer.nextDouble();
+            factura.agregarProducto(producto, cantidad, precioUnit);
+            leer.nextLine();
+            System.out.println("¿Desea agregar otro producto? ");
+            System.out.println("1. si");
+            System.out.println("2. no");
+            continuar = leer.nextInt();
+            leer.nextLine();
+            switch (continuar){
+                case 1-> System.out.println("ok continuar");
+                case 2 -> booleanContinua = false;
+                default -> System.out.println("Opción no válida.");
+            }
+        } while (booleanContinua);
+        listaFactura.add(factura);
         System.out.println("Factura creada correctamente.");
     }
     public static void eliminarFactura(){
@@ -93,11 +110,14 @@ public class Main {
             System.out.println("No se encontró ninguna factura.");
             return;
         }
-        // para esto es la posicion para avanzar en cada una y poder ver la siguiente o la anterio
+        // para esto es la posicion para avanzar en cada una y poder ver la siguiente o la anterior
+        //utilizamos booleaan mostar para mostarlo solo cuando cambie de posicion o si no despues de elegir cada opcion se mostraria
+        boolean mostrar = true;
         while (true) {
-
-            listaFactura.get(posicion).mostrarFactura();
-
+            if (mostrar) {
+                listaFactura.get(posicion).mostrarFactura();
+                mostrar = false;
+            }
             System.out.println("1. Ver anterior");
             System.out.println("2. Ver siguiente");
             System.out.println("3. Volver");
@@ -107,6 +127,7 @@ public class Main {
                 case 1 -> {
                     if (posicion > 0) {
                         posicion--;
+                        mostrar = true;
                     } else {
                         System.out.println("Ya está en la primera factura.");
                     }
@@ -114,6 +135,7 @@ public class Main {
                 case 2 -> {
                     if (posicion < listaFactura.size() - 1) {
                         posicion++;
+                        mostrar = true;
                     } else {
                         System.out.println("Ya está en la última factura.");
                     }
