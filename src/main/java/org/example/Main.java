@@ -1,8 +1,8 @@
 package org.example;
 import java.util.List;
 import java.util.Scanner;
-import java.util.LinkedList; //libreria de las listas enlazadas
-
+import java.util.LinkedList;
+import java.util.ListIterator;
 public class Main {
     static Scanner leer = new Scanner(System.in);
     static List<Factura> listaFactura = new LinkedList<Factura>();
@@ -74,29 +74,62 @@ public class Main {
     public static void verFacturas() {
         int option3;
         int option4;
-        int posicion = -1;
+
+        // 'actual' va a guardar la FACTURA que estamos viendo en este momento.
+        // Antes usabas 'posicion' (un número/índice), ahora usamos directamente
+        // el objeto Factura. Esto es clave para aprovechar el ListIterator.
+        Factura actual = null;
+
+        // El ListIterator es una herramienta especial de Java para recorrer listas.
+        // A diferencia de un 'for' normal, el ListIterator puede moverse
+        // hacia adelante (next) y hacia atrás (previous) sin tener que
+        // recorrer la lista desde el principio cada vez.
+        // Piensa en él como un "cursor" o un dedo que se mueve sobre la lista.
+        ListIterator<Factura> it = null;
+
         System.out.println("======== COMO DESEA BUSCAR LA FACTURA ========");
         System.out.println("1. Por ID de factura");
         System.out.println("2. Por ID de cliente");
         System.out.print("Seleccione una opción: ");
         option3 = leerEntero();
+
         switch (option3) {
             case 1 -> {
                 System.out.print("Ingrese ID de la factura: ");
                 Long idFactura = leerLong();
-                for (int i = 0; i < listaFactura.size(); i++) {
-                    if (listaFactura.get(i).getId().equals(idFactura)) {
-                        posicion = i;
+
+                // Creamos el iterador apuntando al inicio de la lista.
+                it = listaFactura.listIterator();
+
+                // hasNext() pregunta: "¿hay un elemento más adelante?"
+                // Si sí, entramos al bucle.
+                while (it.hasNext()) {
+                    // next() hace DOS cosas a la vez:
+                    // 1) Devuelve el siguiente elemento de la lista.
+                    // 2) Mueve el cursor una posición hacia adelante.
+                    Factura f = it.next();
+
+                    if (f.getId().equals(idFactura)) {
+                        // Encontramos la factura buscada, la guardamos
+                        // y salimos del bucle con 'break'.
+                        actual = f;
                         break;
                     }
                 }
+                // OJO: esto es UN SOLO recorrido de la lista (recorre cada
+                // elemento máximo una vez). Antes, con 'get(i)' dentro de un
+                // 'for', cada get(i) YA recorría la lista desde el inicio,
+                // así que terminabas recorriendo la lista dentro de otro
+                // recorrido = mucho más trabajo del necesario.
             }
             case 2 -> {
                 System.out.print("Ingrese ID del cliente: ");
                 Long idCliente = leerLong();
-                for (int i = 0; i < listaFactura.size(); i++) {
-                    if (listaFactura.get(i).getIdCliente().equals(idCliente)) {
-                        posicion = i;
+                it = listaFactura.listIterator();
+                while (it.hasNext()) {
+                    Factura f = it.next();
+                    if (f.getIdCliente().equals(idCliente)) {
+                        actual = f;
                         break;
                     }
                 }
@@ -106,33 +139,72 @@ public class Main {
                 return;
             }
         }
-        if (posicion == -1) {
+
+        // Si 'actual' sigue siendo null, es porque el bucle nunca encontró
+        // una factura que cumpliera la condición.
+        if (actual == null) {
             System.out.println("No se encontró ninguna factura.");
             return;
         }
+
         boolean mostrar = true;
         while (true) {
             if (mostrar) {
-                listaFactura.get(posicion).mostrarFactura();
+                // Mostramos la factura actual (ya no usamos listaFactura.get(posicion))
+                actual.mostrarFactura();
                 mostrar = false;
             }
+
             System.out.println("1. Ver anterior");
             System.out.println("2. Ver siguiente");
             System.out.println("3. Volver");
             System.out.print("Seleccione una opción: ");
             option4 = leerEntero();
+
             switch (option4) {
                 case 1 -> {
-                    if (posicion > 0) {
-                        posicion--;
-                        mostrar = true;
+                    // el iterador  está PARADO ENTRE
+                    // dos elementos de la lista, no encima de uno.
+                    // Después del código de búsqueda de arriba, el cursor
+                    // quedó justo DESPUÉS de 'actual' (porque next() lo mueve
+                    // hacia adelante al devolver el elemento).
+
+                    // hasPrevious() pregunta: "¿hay algo detrás del cursor?"
+                    if (it.hasPrevious()) {
+                        // La PRIMERA llamada a previous() nos devuelve el
+                        // elemento que está detrás del cursor, que en este
+                        // punto es el mismo 'actual' que ya teníamos!
+                        // (porque el cursor estaba justo después de él).
+                        it.previous();
+                        // Por eso preguntamos hasPrevious() OTRA VEZ:
+                        // para saber si detrás de 'actual' hay un elemento
+                        // REAL anterior (el que de verdad queremos mostrar).
+                        if (it.hasPrevious()) {
+                            // La SEGUNDA llamada a previous() sí nos da
+                            // el elemento anterior de verdad.
+                            actual = it.previous();
+                            // Ahora el cursor quedó ANTES de 'actual'.
+                            // Llamamos next() para dejarlo justo DESPUÉS
+                            // de 'actual' otra vez, y así la próxima vez
+                            // que pidamos "anterior" o "siguiente" funcione igual.
+                            it.next();
+                            mostrar = true;
+                        } else {
+                            // No había un anterior real. Como ya movimos
+                            // el cursor con el primer previous(), lo
+                            // regresamos a su lugar con next().
+                            it.next();
+                            System.out.println("Ya está en la primera factura.");
+                        }
                     } else {
                         System.out.println("Ya está en la primera factura.");
                     }
                 }
                 case 2 -> {
-                    if (posicion < listaFactura.size() - 1) {
-                        posicion++;
+                    // "Siguiente" es mucho más simple:
+                    // solo preguntamos si hay algo más adelante y avanzamos.
+                    if (it.hasNext()) {
+                        actual = it.next();
                         mostrar = true;
                     } else {
                         System.out.println("Ya está en la última factura.");
